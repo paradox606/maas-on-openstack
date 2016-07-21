@@ -36,19 +36,29 @@ EnlistNodes(){
   do
     sleep 5
     sys_id=`maas $maas_user_name nodes list mac_address="$mac" | jq .[0].system_id | sed -e's/^"//'  -e 's/"$//'`
+    echo -en "."
   done
   nova_id=`nova list | grep $1| cut -d'|' -f2 | tr -d ' '`
+  echo maas $maas_user_name node update $sys_id power_type=nova
   maas $maas_user_name node update $sys_id power_type=nova
+  echo maas $maas_user_name node update $sys_id power_parameters_nova_id=$nova_id \
+  power_parameters_os_tenantname=$OS_TENANT_NAME \
+  power_parameters_os_tenantname=$OS_TENANT_NAME \
+  power_parameters_os_username=$OS_USERNAME \
+  power_parameters_os_password=$OS_PASSWORD \
+  power_parameters_os_authurl=$OS_AUTH_URL
   maas $maas_user_name node update $sys_id power_parameters_nova_id=$nova_id \
   power_parameters_os_tenantname=$OS_TENANT_NAME \
   power_parameters_os_tenantname=$OS_TENANT_NAME \
   power_parameters_os_username=$OS_USERNAME \
   power_parameters_os_password=$OS_PASSWORD \
   power_parameters_os_authurl=$OS_AUTH_URL
-  #echo "Ready for commissioning"
+#  echo "Ready for commissioning"
+#  echo maas $maas_user_name node update $sys_id hostname=$1
   maas $maas_user_name node update $sys_id hostname=$1
-  #echo "Start commissioning $1"
-  #sleep 20
+#  echo "Start commissioning $1"
+  echo "sleep 20"
+  sleep 20
   #maas $maas_user_name node commission $sys_id
 }
 
