@@ -11,12 +11,15 @@ display_usage() {
 
 CreateInstance(){
   # create an instance with two nics
+  echo nova boot --flavor $2 --image $glance_img_name --nic net-id=$maas_net_id --poll $1
   nova boot --flavor $2 --image $glance_img_name --nic net-id=$maas_net_id --poll $1
+  echo nova interface-attach --net-id $maas_net_id $1
   nova interface-attach --net-id $maas_net_id $1
 }
 
 EnlistNodes(){
   maas_net_id=`neutron net-list | grep $maas_nw_name| cut -d\| -f2| tr -d ' '`
+  echo "maas_net_id: "$maas_net_id
   echo "Start to enlist $1"
   CreateInstance $1 $2
   echo "retrieving mac for $1"
@@ -24,7 +27,9 @@ EnlistNodes(){
   if [[ $ip == *","* ]];then
     ip=`cut -d"," -f1 <<< "$ip"`
   fi
+  echo "ip is "$ip
   mac=`neutron port-list|grep $ip|cut -d\| -f4`
+  echo "mac is "$mac
   echo "Waiting if $1 is ready for commissioning. this will take a while..."
   sys_id=null
   while [ ${sys_id} = null ]
